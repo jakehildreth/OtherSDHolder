@@ -23,33 +23,13 @@ jobs:
             - name: Checkout code
               uses: actions/checkout@v4
 
-            - name: Install skills from public repositories
+            - name: Install Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: "20"
+
+            - name: Install mattpocock/skills
               run: |
-                  # Install the GitHub Copilot skills installer
-                  # Skills are fetched from public GitHub repositories and placed
-                  # in the expected location for the Copilot agent to discover them.
-                  SKILLS_DIR="${HOME}/.copilot/skills"
-                  mkdir -p "$SKILLS_DIR"
-
-                  # Helper function to install a skill from a public GitHub repository.
-                  # Usage: install_skill <owner/repo> [ref]
-                  install_skill() {
-                      local repo="$1"
-                      local ref="${2:-main}"
-                      local skill_name
-                      skill_name=$(basename "$repo")
-                      echo "Installing skill '$skill_name' from github.com/$repo@$ref ..."
-                      gh repo clone "https://github.com/$repo.git" "$SKILLS_DIR/$skill_name" -- --depth=1 --branch "$ref" 2>/dev/null \
-                          || git clone --depth=1 "https://github.com/$repo.git" "$SKILLS_DIR/$skill_name"
-                      echo "Skill '$skill_name' installed."
-                  }
-
-                  # ---------------------------------------------------------------
-                  # Add skills below by calling install_skill with the public repo.
-                  # Example:
-                  #   install_skill "owner/my-copilot-skill"
-                  #   install_skill "owner/my-copilot-skill" "v1.2.0"
-                  # ---------------------------------------------------------------
-
-              env:
-                  GH_TOKEN: ${{ github.token }}
+                  # Install skills from mattpocock/skills using the official skills.sh installer.
+                  # Passing --yes skips interactive prompts and installs all skills for all agents.
+                  npx --yes skills@latest add mattpocock/skills --yes
